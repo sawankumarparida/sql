@@ -124,6 +124,22 @@ INSERT INTO `Salaries` VALUES (101,115000.00,'2023-01-01'),(102,85000.00,'2023-0
 UNLOCK TABLES;
 
 --
+-- Temporary view structure for view `vw_compensation_quartiles`
+--
+
+DROP TABLE IF EXISTS `vw_compensation_quartiles`;
+/*!50001 DROP VIEW IF EXISTS `vw_compensation_quartiles`*/;
+SET @saved_cs_client     = @@character_set_client;
+/*!50503 SET character_set_client = utf8mb4 */;
+/*!50001 CREATE VIEW `vw_compensation_quartiles` AS SELECT 
+ 1 AS `Department`,
+ 1 AS `Employee`,
+ 1 AS `Salary`,
+ 1 AS `Dept_Rank`,
+ 1 AS `Company_Pay_Quartile`*/;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Temporary view structure for view `vw_master_hr_report`
 --
 
@@ -142,6 +158,24 @@ SET @saved_cs_client     = @@character_set_client;
  1 AS `appraisal_score`,
  1 AS `leadership_potential`*/;
 SET character_set_client = @saved_cs_client;
+
+--
+-- Final view structure for view `vw_compensation_quartiles`
+--
+
+/*!50001 DROP VIEW IF EXISTS `vw_compensation_quartiles`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8mb4 */;
+/*!50001 SET character_set_results     = utf8mb4 */;
+/*!50001 SET collation_connection      = utf8mb4_0900_ai_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `vw_compensation_quartiles` AS select `d`.`dept_name` AS `Department`,`e`.`first_name` AS `Employee`,`s`.`base_salary` AS `Salary`,rank() OVER (PARTITION BY `d`.`dept_name` ORDER BY `s`.`base_salary` desc )  AS `Dept_Rank`,ntile(4) OVER (ORDER BY `s`.`base_salary` )  AS `Company_Pay_Quartile` from ((`Employees` `e` join `Salaries` `s` on((`e`.`emp_id` = `s`.`emp_id`))) join `Departments` `d` on((`e`.`dept_id` = `d`.`dept_id`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
 
 --
 -- Final view structure for view `vw_master_hr_report`
@@ -170,4 +204,4 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-11  6:10:52
+-- Dump completed on 2026-06-12 11:01:30
