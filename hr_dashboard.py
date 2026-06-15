@@ -5,18 +5,19 @@ import mysql.connector
 # 1. Dashboard Configuration
 st.set_page_config(page_title="HR Analytics Dashboard", layout="wide")
 st.title("👥 HR Executive Dashboard: Retention & Compensation")
-st.markdown("Live People Analytics feed from the WSL MySQL HR Sandbox.")
+st.markdown("Live People Analytics feed from the MySQL Cloud Sandbox.")
 
-# 2. Database Connection & Data Merging
+# 2. Database Connection Using Secure Environment Secrets
 @st.cache_data
 def fetch_hr_data():
+    # Streamlit will look into a hidden secrets vault for these keys
     connection = mysql.connector.connect(
-        host="127.0.0.1",
-        user="root",
-        password="Snmr@7875",  # <-- Put your MySQL password here
-        database="hr_sandbox"
+        host=st.secrets["DB_HOST"],
+        user=st.secrets["DB_USER"],
+        password=st.secrets["DB_PASS"],
+        database=st.secrets["DB_NAME"]
     )
-    # We write a custom query to join our Master Report with our Quartile Math!
+    
     query = """
     SELECT 
         m.first_name, 
@@ -49,7 +50,6 @@ try:
     # ------------------------------
 
     # 4. Executive Summary Metrics
-    # Calculate exactly how many high-performers are in the bottom 50% of pay
     flight_risks = len(df[(df["appraisal_score"] >= 4) & (df["Company_Pay_Quartile"] <= 2)])
     avg_salary = df["base_salary"].mean()
     
@@ -65,12 +65,10 @@ try:
     
     with col_chart1:
         st.subheader("Compensation Distribution")
-        # A clean bar chart showing salaries colored by department
         st.bar_chart(df, x="first_name", y="base_salary", color="dept_name")
         
     with col_chart2:
         st.subheader("Performance vs. Pay Quartile")
-        # A scatter chart plotting appraisal score against their pay band
         st.scatter_chart(
             df, 
             x="appraisal_score", 
